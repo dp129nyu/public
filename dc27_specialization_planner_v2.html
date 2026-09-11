@@ -103,10 +103,21 @@
   .ref-list .combo{color:var(--ink);}
   .ref-list .x{color:var(--oxblood);font-family:var(--font-mono);font-size:11px;}
 
+  .source-card{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .source-status{display:flex;align-items:center;gap:9px;font-size:13.5px;}
+  .status-dot{width:9px;height:9px;border-radius:50%;background:var(--ink-soft);flex-shrink:0;}
+  .status-dot.ok{background:var(--forest);}
+  .status-dot.error{background:var(--oxblood);}
+  .status-dot.loading{background:var(--brass);animation:pulse 1.2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+  .source-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .file-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;}
+
   footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-soft);text-align:center;}
 </style>
 </head>
 <body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
 <header>
   <div class="inner">
@@ -117,6 +128,24 @@
 </header>
 
 <div class="wrap">
+
+  <section style="display:none;">
+    <h2>Data Source</h2>
+    <p class="section-note">Loads automatically from the published course catalog. Upload a different CSV below to override it (same four-column format: set, course, specialization, type).</p>
+    <div class="card source-card" style="margin-bottom:36px;">
+      <div class="source-status" id="sourceStatus">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Loading…</span>
+      </div>
+      <div class="source-actions">
+        <label class="btn-secondary file-btn">
+          Upload CSV
+          <input type="file" id="csvUpload" accept=".csv" style="display:none;">
+        </label>
+        <button class="btn-secondary" id="reloadBtn">Reload from published source</button>
+      </div>
+    </div>
+  </section>
 
   <div class="grid">
     <div>
@@ -166,13 +195,13 @@
 /* =========================================================================
    DATA
    ========================================================================= */
-const SPECS = [
-  "Banking", "Business Analytics", "Corporate Finance", "Finance",
-  "Financial Instruments and Markets", "Leadership", "Management",
-  "Management of Tech & Ops", "Marketing", "Strategy",
-];
-
-const SETS = [
+/* =========================================================================
+   DATA
+   Loaded dynamically from a tidy CSV (columns: set, course, specialization,
+   type). FALLBACK_SETS below is the last verified-correct baseline, embedded
+   so the page always has something to show even if the live fetch fails.
+   ========================================================================= */
+const FALLBACK_SETS = [
   ["Fall Set 1", [
     ["F1A", "Decision Models and Analytics", {"Business Analytics":"N","Management":"N","Management of Tech & Ops":"N"}],
     ["F1B", "Conquering High Stakes Communication", {"Leadership":"N"}],
@@ -186,7 +215,7 @@ const SETS = [
     ["F3B", "Marketing Planning and Strategy", {"Marketing":"N"}],
   ]],
   ["Fall Set 4", [
-    ["F4A", "AI, Automation, and the Platform Revolution", {"Business Analytics":"N","Management of Tech & Ops":"N"}],
+    ["F4A", "AI, Automation, and the Platform Revolution: Global Perspectives", {"Business Analytics":"N","Management of Tech & Ops":"N"}],
     ["F4B", "Corporate Finance", {"Corporate Finance":"N","Finance":"N"}],
   ]],
   ["Fall Set 5", [
@@ -210,7 +239,7 @@ const SETS = [
     ["S4B", "Valuation", {"Banking":"N","Corporate Finance":"N","Finance":"N","Financial Instruments and Markets":"N"}],
   ]],
   ["Spring Set 5", [
-    ["S5A", "Power and Professional Influence", {"Leadership":"N","Management":"N"}],
+    ["S5A", "Power and Professional Influence (ONLINE)", {"Leadership":"N","Management":"N"}],
     ["S5B", "Year Two Global Immersion Experience", {}],
   ]],
   ["Summer Set 1", [
@@ -223,8 +252,29 @@ const SETS = [
   ]],
 ];
 
+function deriveSpecs(setsData){
+  const found = new Set();
+  setsData.forEach(([, opts]) => opts.forEach(([, , specs]) => {
+    Object.keys(specs).forEach(s => found.add(s));
+  }));
+  return Array.from(found).sort();
+}
+
+// current working data — reassigned when a CSV loads (auto-fetch or upload)
+let SETS = FALLBACK_SETS;
+let SPECS = deriveSpecs(FALLBACK_SETS);
+
 const REQUIRED_COURSES = 4;
 const ENUM_CAP = 1500; // safety cap on enumeration (observed worst case across the program is 849)
+
+// Program-policy rules that aren't inferable from the catalog data itself —
+// these describe *how many* of each course "type" a specialization needs,
+// keyed by specialization name. Only specializations with type-tagged
+// courses (S1/S2 etc.) need an entry here; everything else just needs
+// REQUIRED_COURSES of any type.
+const SPECIAL_TYPE_RULES = {
+  "Strategy": { "S1": 3, "S2": 1 }
+};
 
 /* =========================================================================
    FEASIBILITY CHECK (max-flow — fast, used for reference tables & quick checks)
@@ -283,16 +333,24 @@ function isFeasible(targetSpecsArr){
       g.addEdge(setNode, optNode, 1);
       for(const [spec, typ] of Object.entries(specs)){
         if(!targetSpecs.has(spec)) continue;
-        if(spec==="Strategy"){
-          if(typ==="S1") g.addEdge(optNode, "SPEC_Strategy", 1);
-          else g.addEdge(optNode, "STRAT_S2_BOTTLENECK", 1);
+        const rule = SPECIAL_TYPE_RULES[spec];
+        if(rule && (typ in rule)){
+          g.addEdge(optNode, "TYPE_"+spec+"_"+typ, 1);
         } else {
           g.addEdge(optNode, "SPEC_"+spec, 1);
         }
       }
     }
   }
-  if(targetSpecs.has("Strategy")) g.addEdge("STRAT_S2_BOTTLENECK", "SPEC_Strategy", 1);
+  // wire each type-bottleneck node to its specialization, capped at the rule's count
+  for(const spec of targetSpecs){
+    const rule = SPECIAL_TYPE_RULES[spec];
+    if(rule){
+      Object.entries(rule).forEach(([typ, requiredCount])=>{
+        g.addEdge("TYPE_"+spec+"_"+typ, "SPEC_"+spec, requiredCount);
+      });
+    }
+  }
   for(const spec of targetSpecs) g.addEdge("SPEC_"+spec, SINK, REQUIRED_COURSES);
   const flow = g.maxflow(SRC, SINK);
   return flow === REQUIRED_COURSES * targetSpecs.size;
@@ -309,8 +367,12 @@ function enumerateAll(targetSpecsArr, cap = ENUM_CAP){
 
   const results = [];
   const counts = {};
-  targetSpecs.forEach(s => counts[s] = 0);
-  let s1n = 0, s2n = 0;
+  const typeCounts = {}; // "spec|type" -> count, for specs with a SPECIAL_TYPE_RULES entry
+  targetSpecs.forEach(s => {
+    counts[s] = 0;
+    const rule = SPECIAL_TYPE_RULES[s];
+    if(rule) Object.keys(rule).forEach(t => typeCounts[s+"|"+t] = 0);
+  });
 
   function candidatesFor(set){
     const [name, opts] = set;
@@ -323,11 +385,16 @@ function enumerateAll(targetSpecsArr, cap = ENUM_CAP){
     return cands;
   }
 
+  function typeRuleSatisfied(spec){
+    const rule = SPECIAL_TYPE_RULES[spec];
+    if(!rule) return true;
+    return Object.entries(rule).every(([t, n]) => typeCounts[spec+"|"+t] === n);
+  }
+
   function backtrack(idx, chosen){
     if(results.length >= cap) return;
     if(idx === relevantSets.length){
-      const ok = targetSpecs.every(s => counts[s] === REQUIRED_COURSES) &&
-                 (!targetSpecs.includes("Strategy") || (s1n === 3 && s2n === 1));
+      const ok = targetSpecs.every(s => counts[s] === REQUIRED_COURSES && typeRuleSatisfied(s));
       if(ok) results.push(chosen.slice());
       return;
     }
@@ -336,17 +403,16 @@ function enumerateAll(targetSpecsArr, cap = ENUM_CAP){
         backtrack(idx+1, chosen);
       } else {
         if(counts[c.spec] >= REQUIRED_COURSES) continue;
-        if(c.spec === "Strategy"){
-          if(c.typ === "S1" && s1n >= 3) continue;
-          if(c.typ === "S2" && s2n >= 1) continue;
-        }
+        const rule = SPECIAL_TYPE_RULES[c.spec];
+        if(rule && (c.typ in rule) && typeCounts[c.spec+"|"+c.typ] >= rule[c.typ]) continue;
+
         counts[c.spec]++;
-        if(c.spec === "Strategy"){ if(c.typ === "S1") s1n++; else s2n++; }
+        if(rule && (c.typ in rule)) typeCounts[c.spec+"|"+c.typ]++;
         chosen.push({ setName:c.setName, courseName:c.cname, credited:c.spec });
         backtrack(idx+1, chosen);
         chosen.pop();
         counts[c.spec]--;
-        if(c.spec === "Strategy"){ if(c.typ === "S1") s1n--; else s2n--; }
+        if(rule && (c.typ in rule)) typeCounts[c.spec+"|"+c.typ]--;
       }
       if(results.length >= cap) return;
     }
@@ -380,6 +446,7 @@ function colorFor(spec, orderArr){ return COLORS[orderArr.indexOf(spec) % COLORS
 
 function buildSpecList(){
   const container = document.getElementById("specList");
+  container.innerHTML = ""; // clear previous render (rebuilds on reload/upload)
   SPECS.forEach(spec=>{
     const row = document.createElement("div");
     row.className = "spec-row";
@@ -578,9 +645,100 @@ function buildReference(){
   ).join("");
 }
 
+/* =========================================================================
+   DATA LOADING — parses a tidy CSV (set, course, specialization, type)
+   into the SETS structure, with auto-fetch + manual-upload override.
+   ========================================================================= */
+const CSV_URL = "https://dp129nyu.github.io/public/dc27_electives.csv";
+
+// converts parsed CSV rows into the [ [setName, [[rid, courseName, {spec:type}], ...]], ... ] shape
+function buildSetsFromRows(rows){
+  const setOrder = [];
+  const setMap = new Map(); // setName -> Map(courseName -> {spec:type})
+  rows.forEach(r=>{
+    const setName = (r.set || "").trim();
+    const course = (r.course || "").trim();
+    if(!setName || !course) return; // skip malformed/blank rows
+    const spec = (r.specialization || "").trim();
+    const typ = (r.type || "N").trim() || "N";
+    if(!setMap.has(setName)){ setMap.set(setName, new Map()); setOrder.push(setName); }
+    const courseMap = setMap.get(setName);
+    if(!courseMap.has(course)) courseMap.set(course, {});
+    if(spec) courseMap.get(course)[spec] = typ;
+  });
+  const result = [];
+  setOrder.forEach((setName, si)=>{
+    const courseMap = setMap.get(setName);
+    const opts = [];
+    let oi = 0;
+    courseMap.forEach((specs, courseName)=>{
+      opts.push([`R${si}_${oi}`, courseName, specs]);
+      oi++;
+    });
+    result.push([setName, opts]);
+  });
+  return result;
+}
+
+function setStatus(state, text){
+  document.getElementById("statusDot").className = "status-dot " + state;
+  document.getElementById("statusText").textContent = text;
+}
+
+function applyNewData(setsData){
+  if(!setsData || setsData.length === 0) return false;
+  SETS = setsData;
+  SPECS = deriveSpecs(setsData);
+  buildSpecList();
+  buildReference();
+  document.getElementById("results").innerHTML = `<div class="placeholder">Select one or more specializations on the left, then click "Find My Plans."</div>`;
+  return true;
+}
+
+function loadFromCsvText(text, sourceLabel){
+  try{
+    const parsed = Papa.parse(text, { header:true, skipEmptyLines:true });
+    const setsData = buildSetsFromRows(parsed.data);
+    if(applyNewData(setsData)){
+      const courseCount = setsData.reduce((sum,[,opts])=>sum+opts.length, 0);
+      setStatus("ok", `Loaded ${courseCount} courses across ${setsData.length} elective sets — ${sourceLabel}.`);
+    } else {
+      setStatus("error", `${sourceLabel} had no usable rows — keeping the current data.`);
+    }
+  } catch(err){
+    setStatus("error", `Couldn't parse ${sourceLabel} (${err.message}) — keeping the current data.`);
+  }
+}
+
+function tryAutoFetch(){
+  setStatus("loading", "Loading from published course catalog…");
+  fetch(CSV_URL, { cache:"no-store" })
+    .then(res=>{
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      return res.text();
+    })
+    .then(text=> loadFromCsvText(text, "auto-loaded from published catalog"))
+    .catch(err=>{
+      setStatus("error", `Couldn't auto-load the published catalog (${err.message}). Showing built-in baseline data — upload a CSV below to override.`);
+    });
+}
+
+document.getElementById("csvUpload").addEventListener("change", (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=> loadFromCsvText(reader.result, `uploaded file "${file.name}"`);
+  reader.onerror = ()=> setStatus("error", "Couldn't read the uploaded file — keeping the current data.");
+  reader.readAsText(file);
+});
+document.getElementById("reloadBtn").addEventListener("click", tryAutoFetch);
+
 /* ---------- wire up ---------- */
-buildSpecList();
+buildSpecList(); // render immediately with built-in baseline, no waiting on network
 buildReference();
+setStatus("loading", "Using built-in baseline data — checking for updates…");
+tryAutoFetch();
+
 document.getElementById("generateBtn").addEventListener("click", renderResults);
 document.getElementById("clearBtn").addEventListener("click", ()=>{
   SPECS.forEach(s=>{
