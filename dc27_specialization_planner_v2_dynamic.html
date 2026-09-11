@@ -128,7 +128,7 @@
 </header>
 
 <div class="wrap">
-
+  <!--
   <section>
     <h2>Data Source</h2>
     <p class="section-note">Loads automatically from the published course catalog. Upload a different CSV below to override it (same four-column format: set, course, specialization, type).</p>
@@ -146,7 +146,7 @@
       </div>
     </div>
   </section>
-
+  -->
   <div class="grid">
     <div>
       <h2>Specializations</h2>
@@ -649,7 +649,7 @@ function buildReference(){
    DATA LOADING — parses a tidy CSV (set, course, specialization, type)
    into the SETS structure, with auto-fetch + manual-upload override.
    ========================================================================= */
-const CSV_URL = "https://dp129nyu.github.io/public/dc27_electives.csv";
+const CSV_URL = "./dc27_electives.csv";
 
 // converts parsed CSV rows into the [ [setName, [[rid, courseName, {spec:type}], ...]], ... ] shape
 function buildSetsFromRows(rows){
