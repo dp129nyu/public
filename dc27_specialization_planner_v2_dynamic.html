@@ -3,33 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
 <title>DC27 EMBA Specialization Planner</title>
 <style>
   :root{
-    --ink:#10192B;
-    --ink-soft:#3A4562;
-    --parchment:#F6F1E4;
-    --parchment-dark:#ECE2C8;
-    --card:#FBF8F0;
-    --brass:#A9782E;
-    --brass-light:#C9A15C;
-    --forest:#35573A;
+    /* NYU brand palette — NYU Violet (PMS 2597 / #57068C) is the official
+       primary color; tints/shades and greyscale below are the documented
+       accent palette from NYU's brand guidelines (nyu.edu/brand). */
+    --ink:#1A1A1A;
+    --ink-soft:#4A4A4A;
+    --parchment:#FFFFFF;
+    --parchment-dark:#F2F2F2;
+    --card:#FFFFFF;
+    --brass:#57068C;
+    --brass-light:#ab82c5;
+    --violet-deep:#330662;
+    --violet-tint:#eee6f3;
+    --forest:#2E7D46;
     --oxblood:#7A2E2E;
-    --line:#D8CBA8;
-    --line-soft:#E6DCC0;
-    --font-display: 'Iowan Old Style','Palatino Linotype','Book Antiqua',Georgia,serif;
-    --font-body: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-    --font-mono: 'SF Mono','IBM Plex Mono',Consolas,'Courier New',monospace;
+    --line:#D6D6D6;
+    --line-soft:#E8E8E8;
+    --font-display: 'Montserrat', Verdana, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    --font-body: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+    --font-mono: 'Montserrat', Verdana, -apple-system, sans-serif;
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--parchment);color:var(--ink);font-family:var(--font-body);line-height:1.5;}
   .wrap{max-width:1080px;margin:0 auto;padding:0 24px 80px;}
 
-  header{background:var(--ink);color:var(--parchment);padding:40px 24px 32px;border-bottom:5px solid var(--brass);}
+  header{background:var(--brass);color:var(--parchment);padding:40px 24px 32px;border-bottom:5px solid var(--violet-deep);}
   header .inner{max-width:1080px;margin:0 auto;}
-  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-light);margin:0 0 10px;}
+  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet-tint);margin:0 0 10px;}
   h1{font-family:var(--font-display);font-weight:600;font-size:clamp(28px,4vw,42px);margin:0 0 10px;letter-spacing:.01em;}
-  header p.sub{max-width:640px;color:#CBD2E0;margin:0;font-size:15px;}
+  header p.sub{max-width:640px;color:var(--violet-tint);margin:0;font-size:15px;}
+  .nyu-lockup{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+  .nyu-mark{background:#FFFFFF;color:var(--brass);font-family:var(--font-display);font-weight:800;font-size:19px;letter-spacing:.03em;padding:6px 11px;border-radius:2px;line-height:1;}
+  .nyu-rope{width:1px;height:30px;background:rgba(255,255,255,.4);flex-shrink:0;}
+  .nyu-unit{font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;line-height:1.45;color:#FFFFFF;}
 
   .grid{display:grid;grid-template-columns:340px 1fr;gap:28px;margin-top:36px;align-items:start;}
   @media (max-width:820px){.grid{grid-template-columns:1fr;}}
@@ -46,10 +58,10 @@
   .pool-badge{font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);white-space:nowrap;padding-left:8px;}
   .selector-actions{padding:14px 20px 20px;display:flex;gap:10px;}
   button{font-family:var(--font-body);font-size:13.5px;font-weight:600;border-radius:2px;cursor:pointer;padding:11px 18px;border:1px solid var(--ink);}
-  .btn-primary{background:var(--ink);color:var(--parchment);flex:1;}
-  .btn-primary:hover{background:var(--ink-soft);}
+  .btn-primary{background:var(--brass);color:var(--parchment);flex:1;}
+  .btn-primary:hover{background:var(--violet-deep);}
   .btn-secondary{background:transparent;color:var(--ink);border-color:var(--line);}
-  .btn-secondary:hover{border-color:var(--ink);}
+  .btn-secondary:hover{border-color:var(--brass);color:var(--brass);}
 
   .results-card{padding:24px;min-height:220px;}
   .placeholder{color:var(--ink-soft);font-size:14px;padding:30px 0;text-align:center;}
@@ -87,7 +99,7 @@
   .pagination{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:12px;}
   .page-btn{min-width:30px;height:30px;padding:0 8px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);font-family:var(--font-mono);font-size:12px;border-radius:2px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
   .page-btn:hover{border-color:var(--brass);color:var(--ink);}
-  .page-btn.active{background:var(--ink);border-color:var(--ink);color:var(--parchment);font-weight:700;}
+  .page-btn.active{background:var(--brass);border-color:var(--brass);color:var(--parchment);font-weight:700;}
   .page-btn:disabled{opacity:.35;cursor:default;}
   .page-ellipsis{color:var(--ink-soft);font-family:var(--font-mono);font-size:12px;padding:0 4px;}
 
@@ -121,6 +133,13 @@
 
 <header>
   <div class="inner">
+	<!--
+    <div class="nyu-lockup">
+      <span class="nyu-mark">NYU</span>
+      <span class="nyu-rope"></span>
+      <span class="nyu-unit">Stern School of Business<br>Executive MBA</span>
+    </div>
+	-->
     <p class="eyebrow">DC27 STERN EMBA Program &middot; Specialization Planning Desk</p>
     <h1>DC27 EMBA Specialization Planner</h1>
     <p class="sub">Select the specializations you're weighing. This checks every combination of the program's twelve elective sets and shows you <strong>every</strong> valid way to complete them — not just one.</p>
@@ -441,7 +460,7 @@ function poolSize(spec){
 /* =========================================================================
    UI
    ========================================================================= */
-const COLORS = ["#A9782E","#35573A","#7A2E2E","#2A3752","#3B6E71","#8A5A8A","#5A6E3B"];
+const COLORS = ["#57068C","#404040","#ab82c5","#000000","#6d6d6d","#702b9d","#330662"];
 function colorFor(spec, orderArr){ return COLORS[orderArr.indexOf(spec) % COLORS.length]; }
 
 function buildSpecList(){
