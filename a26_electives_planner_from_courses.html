@@ -125,6 +125,8 @@
   .source-actions{display:flex;gap:10px;flex-wrap:wrap;}
   .file-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;}
 
+  .load-error{color:var(--oxblood);}
+  button:disabled{opacity:.5;cursor:not-allowed;}
   footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-soft);text-align:center;}
 </style>
 </head>
@@ -135,7 +137,7 @@
   <div class="inner">
     <p class="eyebrow">A26 STERN EMBA Program &middot; Specialization Planning Desk</p>
     <h1>A26 EMBA Electives Planner from Course Selections</h1>
-    <p class="sub">Pin the courses you already know you want. This checks every pair and every 3-way combination of the program's ten specializations and shows you which ones remain achievable — along with <strong>every</strong> valid way to complete each one.</p>
+    <p class="sub">Pin the courses you already know you want. This checks every pair and every 3-way combination of the program's <span class="n-specs">…</span> specializations and shows you which ones remain achievable — along with <strong>every</strong> valid way to complete each one.</p>
   </div>
 </header>
 
@@ -163,106 +165,34 @@
     <h2>Course Preferences <span class="optional-tag">optional</span></h2>
     <p class="section-note">Already know you want a specific course in a given term? Pin it here. Leave everything unselected to see what's achievable across the whole program with no constraints.</p>
     <div class="card schedule-card">
-      <div id="scheduleGrid" class="schedule-grid"></div>
+      <div id="scheduleGrid" class="schedule-grid"><div class="placeholder">Loading course catalog…</div></div>
     </div>
   </section>
 
   <div class="action-bar">
-    <button class="btn-primary" id="generateBtn">Find Feasible Specializations</button>
-    <button class="btn-secondary" id="clearBtn">Clear All</button>
+    <button class="btn-primary" id="generateBtn" disabled>Find Feasible Specializations</button>
+    <button class="btn-secondary" id="clearBtn" disabled>Clear All</button>
   </div>
 
   <section class="block">
     <h2>Result</h2>
     <div class="card results-card" id="results">
-      <div class="placeholder">Optionally pin courses above, then click "Find Feasible Specializations" to see every achievable pair and triple.</div>
+      <div class="placeholder">Loading course catalog…</div>
     </div>
   </section>
 
-  <footer>
-    Built from the program's Elective Choices &amp; Specializations catalog. One course per elective set; a course counts toward at most one specialization; Strategy requires 1 S1-type and exactly 3 S2-type courses; four specializations (Entertainment, Media, and Technology; Entrepreneurship and Innovation; Sustainable Business and Innovation; Brand Management) each require one specific mandatory course.
-  </footer>
+  <footer id="footerRules">Loading course catalog…</footer>
 </div>
 
 
 <script>
 /* =========================================================================
    DATA
-   Loaded dynamically from a tidy CSV (columns: set, course, specialization,
-   type). FALLBACK_SETS below is the last verified-correct baseline, embedded
-   so the page always has something to show even if the live fetch fails.
+   Everything about the catalog (sets, courses, specializations, S1/S2 tags,
+   required courses) is loaded at runtime from the CSV at CSV_URL, with
+   columns: set, course, specialization, strategy_type, course_required.
+   Nothing about the catalog is embedded in this file.
    ========================================================================= */
-const FALLBACK_SETS = [
-  ["Fall Elective Set 1", [
-    ["R0_0", "Private Equity", {"Banking":"N","Corporate Finance":"N","Finance":"N","Financial Instruments and Markets":"N","Strategy":"S2"}],
-    ["R0_1", "Crisis Management", {"Leadership and Change Management":"N","Management":"N"}],
-    ["R0_2", "Social Entrepreneurship", {"Entrepreneurship and Innovation":"N","Management":"N","Sustatainable Business and Innovation":"N"}],
-  ]],
-  ["Fall Elective Set 2", [
-    ["R1_0", "Real Estate Investment Strategy", {"Finance":"N","Financial Instruments and Markets":"N"}],
-    ["R1_1", "Decision Models and Analytics", {"FinTech":"N","Management":"N","Management of Technology and Operations":"N"}],
-    ["R1_2", "Corporate Finance (Fall)", {"Corporate Finance":"N","Finance":"N"}],
-    ["R1_3", "Managing Change", {"Healthcare":"N","Leadership and Change Management":"N","Management":"N","Strategy":"S2"}],
-  ]],
-  ["Fall Elective Set 3", [
-    ["R2_0", "Operations Strategy", {"Management of Technology and Operations":"N"}],
-    ["R2_1", "Climate Finance", {"Banking":"N","Corporate Finance":"N","Finance":"N","Financial Instruments and Markets":"N","Global Business":"N","Sustatainable Business and Innovation":"N"}],
-    ["R2_2", "Emerging Technology and Business Innovation", {"Brand Management":"N","Entertainment, Media, and Technology":"N","Entrepreneurship and Innovation":"N","Management of Technology and Operations":"N","Strategy":"S2"}],
-    ["R2_3", "Technology, Innovation, and Disruption in Media (Formerly \"New Media in Marketing\")", {"Brand Management":"N","Entertainment, Media, and Technology":"N","Marketing":"N","Management of Technology and Operations":"N"}],
-  ]],
-  ["Fall Elective Set 4", [
-    ["R3_0", "Turnaround, Restructuring, & Distressed Investing", {"Banking":"N","Corporate Finance":"N","Finance":"N","Financial Instruments and Markets":"N"}],
-    ["R3_1", "Behavioral Finance and Market Psychology", {"Banking":"N","Corporate Finance":"N","Finance":"N","Financial Instruments and Markets":"N","FinTech":"N"}],
-    ["R3_2", "Corporate Governance", {"Leadership and Change Management":"N","Management":"N","Sustatainable Business and Innovation":"N","Strategy":"S1"}],
-    ["R3_3", "Brand Strategy", {"Brand Management":"N","Marketing":"N"}],
-  ]],
-  ["Spring Elective Set 1", [
-    ["R4_0", "Global Immersion Experience II (Spring)", {"Global Business":"N"}],
-    ["R4_1", "Collaboration, Conflict and Negotiation (Spring)", {"Leadership and Change Management":"N","Management":"N"}],
-    ["R4_2", "Conquering High Stakes Communication (Spring)", {"Leadership and Change Management":"N"}],
-  ]],
-  ["Spring Elective Set 2", [
-    ["R5_0", "Consumer Behavior", {"Brand Management":"N","Marketing":"N"}],
-    ["R5_1", "The Business of Health & Medical Care", {"Healthcare":"N","Strategy":"S2"}],
-    ["R5_2", "Human Rights and Business", {"Global Business":"N","Sustatainable Business and Innovation":"N"}],
-    ["R5_3", "The Financial Services Industry", {"Banking":"N","Corporate Finance":"N","Finance":"N","Financial Instruments and Markets":"N"}],
-  ]],
-  ["Spring Elective Set 3", [
-    ["R6_0", "Mergers & Acquisitions", {"Corporate Finance":"N","Finance":"N","Leadership and Change Management":"N","Strategy":"S1"}],
-    ["R6_1", "Digital Strategy", {"Entertainment, Media, and Technology":"N","FinTech":"N","Management of Technology and Operations":"N","Strategy":"S2"}],
-    ["R6_2", "Managing a High Tech Company: The CEO Perspective", {"Entertainment, Media, and Technology":"N","Management":"N","Management of Technology and Operations":"N","Strategy":"S2"}],
-    ["R6_3", "Analytics & Machine Learning for Managers", {"Healthcare":"N","Management of Technology and Operations":"N"}],
-  ]],
-  ["Spring Elective Set 4", [
-    ["R7_0", "Foundations of Fintech", {"Finance":"N","FinTech":"N"}],
-    ["R7_1", "Sustainability for Competitive Advantage", {"Leadership and Change Management":"N","Sustatainable Business and Innovation":"N","Strategy":"S1"}],
-    ["R7_2", "Pricing", {"Brand Management":"N","Marketing":"N","Management of Technology and Operations":"N"}],
-    ["R7_3", "Foundations of Entrepreneurship", {"Entrepreneurship and Innovation":"N","Management":"N","Strategy":"S1"}],
-  ]],
-  ["Spring Elective Set 5", [
-    ["R8_0", "Corporate Finance (Spring)", {"Corporate Finance":"N","Finance":"N"}],
-    ["R8_1", "Consulting Practice: Process and Problem Solving", {"Management":"N","Strategy":"S1"}],
-    ["R8_2", "Global Strategy", {"Global Business":"N","Management":"N","Strategy":"S1"}],
-  ]],
-  ["Summer Elective Set 1", [
-    ["R9_0", "Global Immersion Experience II (Summer)", {"Global Business":"N"}],
-    ["R9_1", "Collaboration, Conflict and Negotiation (Summer)", {"Leadership and Change Management":"N","Management":"N"}],
-    ["R9_2", "Conquering High Stakes Communication (Summer)", {"Leadership and Change Management":"N"}],
-  ]],
-  ["Summer Elective Set 2", [
-    ["R10_0", "Innovation and Design", {"Brand Management":"N","Entrepreneurship and Innovation":"N","Marketing":"N","Strategy":"S2"}],
-    ["R10_1", "Digital Marketing Strategy in Practice (Formerly \"Social Media and Mobile Technology\")", {"Brand Management":"N","Entertainment, Media, and Technology":"N","Healthcare":"N","Marketing":"N"}],
-    ["R10_2", "Leading in the Age of AI", {"Leadership and Change Management":"N","Management":"N","Management of Technology and Operations":"N"}],
-    ["R10_3", "Business Drivers", {"Strategy":"S1"}],
-  ]],
-  ["Summer Elective Set 3", [
-    ["R11_0", "Valuation", {"Banking":"N","Corporate Finance":"N","Finance":"N","Financial Instruments and Markets":"N"}],
-    ["R11_1", "Entertainment and Media Industries", {"Entertainment, Media, and Technology":"N","Marketing":"N","Strategy":"S2"}],
-    ["R11_2", "Advanced Corporate Strategy", {"Management":"N","Strategy":"S1"}],
-    ["R11_3", "Power and Professional Influence", {"Leadership and Change Management":"N","Management":"N"}],
-  ]],
-];
-
 function deriveSpecs(setsData){
   const found = new Set();
   setsData.forEach(([, opts]) => opts.forEach(([, , specs]) => {
@@ -271,31 +201,18 @@ function deriveSpecs(setsData){
   return Array.from(found).sort();
 }
 
-// current working data — reassigned when a CSV loads (auto-fetch or upload)
-let SETS = FALLBACK_SETS;
-let SPECS = deriveSpecs(FALLBACK_SETS);
+let SETS = [];              // [[setName, [[rid, courseName, {spec: strategyType}], ...]], ...]
+let SPECS = [];             // specialization names, derived from SETS
+let MANDATORY_COURSES = {}; // spec -> [courseName, ...], derived from course_required = Y
+let DATA_READY = false;
 
 const REQUIRED_COURSES = 4;
 const ENUM_CAP = 3000; // safety cap on enumeration
 
-// Program-policy rules that aren't inferable from the catalog data itself —
-// these describe *how many* of each course "type" a specialization needs,
-// keyed by specialization name. Only specializations with type-tagged
-// courses (S1/S2 etc.) need an entry here; everything else just needs
-// REQUIRED_COURSES of any type.
+// Program policy the CSV doesn't carry: HOW MANY courses of each
+// strategy_type a specialization needs. The CSV says WHICH courses are S1/S2.
 const SPECIAL_TYPE_RULES = {
   "Strategy": { "S1": 1, "S2": 3 }
-};
-
-// Specializations that require one specific named course among their
-// REQUIRED_COURSES (course names here are post-asterisk-stripping — see
-// buildSetsFromRows). The remaining slots can be filled by any other
-// eligible course for that specialization, as usual.
-const MANDATORY_COURSES = {
-  "Entertainment, Media, and Technology": ["Entertainment and Media Industries"],
-  "Entrepreneurship and Innovation": ["Foundations of Entrepreneurship"],
-  "Sustatainable Business and Innovation": ["Sustainability for Competitive Advantage"],
-  "Brand Management": ["Brand Strategy"]
 };
 
 /* =========================================================================
@@ -531,10 +448,14 @@ function termOf(setName){
   return "Other";
 }
 
-function tagsForOption(specs){
+function tagsForOption(specs, cname){
   const entries = Object.entries(specs);
   if(entries.length===0) return "no specialization credit";
-  return entries.map(([s,t]) => t==="S1" ? `${s} (S1)` : t==="S2" ? `${s} (S2)` : s).join(", ");
+  return entries.map(([s,t]) => {
+    let label = (t && t!=="N") ? `${s} (${t})` : s;
+    if((MANDATORY_COURSES[s] || []).includes(cname)) label += " (required)";
+    return label;
+  }).join(", ");
 }
 
 function buildScheduleGrid(){
@@ -561,7 +482,7 @@ function buildScheduleGrid(){
             <input type="radio" name="${groupName}" value="${rid}" data-setname="${name}">
             <span>
               <span class="course-label">${cname}</span>
-              <span class="course-tags">${tagsForOption(specs)}</span>
+              <span class="course-tags">${tagsForOption(specs, cname)}</span>
             </span>
           </label>`;
       });
@@ -734,6 +655,7 @@ function renderComboList(specCombos, containerId, pins){
 }
 
 function renderResults(){
+  if(!DATA_READY) return;
   const pins = getPins();
   const resultsEl = document.getElementById("results");
   const pinHtml = pinnedSummaryHtml(pins);
@@ -755,9 +677,9 @@ function renderResults(){
     ${pinHtml}
     <div class="stamp feasible">${pairs.length + triples.length} combinations</div>
     <p class="result-sub">${hasPins ? 'Given your locked-in courses, these' : 'These'} specialization combinations are achievable. Click any one to see every valid course-by-course way to complete it.</p>
-    <h3 class="result-heading">Feasible Pairs <span class="count-inline">${pairs.length} of 45</span></h3>
+    <h3 class="result-heading">Feasible Pairs <span class="count-inline">${pairs.length} of ${combinations(SPECS,2).length}</span></h3>
     <div id="pairsResultList" style="margin-bottom:26px;"></div>
-    <h3 class="result-heading">Feasible Triples <span class="count-inline">${triples.length} of 120</span></h3>
+    <h3 class="result-heading">Feasible Triples <span class="count-inline">${triples.length} of ${combinations(SPECS,3).length}</span></h3>
     <div id="triplesResultList"></div>
   `;
 
@@ -765,39 +687,84 @@ function renderResults(){
   renderComboList(triples, "triplesResultList", pins);
 }
 
+// Program-policy + catalog summary text shown on the page (subtitle counts, footer)
+function renderProgramText(){
+  document.querySelectorAll(".n-specs").forEach(el=> el.textContent = SPECS.length);
+  document.querySelectorAll(".n-sets").forEach(el=> el.textContent = SETS.length);
+  const parts = [`Built from the program's course catalog. One course per elective set; each specialization needs ${REQUIRED_COURSES} courses; a course counts toward at most one specialization.`];
+  Object.entries(SPECIAL_TYPE_RULES).forEach(([spec, rule])=>{
+    if(!SPECS.includes(spec)) return;
+    parts.push(`${spec} requires ` + Object.entries(rule).map(([t,n])=>`${n} ${t}-type`).join(" and ") + " courses.");
+  });
+  const mand = Object.entries(MANDATORY_COURSES).sort(([a],[b])=>a.localeCompare(b));
+  if(mand.length){
+    parts.push("Required courses: " + mand.map(([spec, courses])=>`${courses.join(" and ")} (${spec})`).join("; ") + ".");
+  }
+  document.getElementById("footerRules").textContent = parts.join(" ");
+}
+
 /* =========================================================================
-   DATA LOADING — parses a tidy CSV (set, course, specialization, type)
-   into the SETS structure, with auto-fetch + manual-upload override.
+   DATA LOADING — parses the CSV (set, course, specialization, strategy_type,
+   course_required) into SETS + MANDATORY_COURSES. The page shows nothing
+   until this succeeds, and shows a clear error if it fails.
    ========================================================================= */
 const CSV_URL = "https://dp129nyu.github.io/public/a26_electives.csv";
+const REQUIRED_COLUMNS = ["set","course","specialization","strategy_type","course_required"];
 
-// converts parsed CSV rows into the [ [setName, [[rid, courseName, {spec:type}], ...]], ... ] shape
-function buildSetsFromRows(rows){
+function isYes(v){ return /^(y|yes|true|1)$/i.test((v || "").trim()); }
+
+function buildDataFromRows(rows){
   const setOrder = [];
-  const setMap = new Map(); // setName -> Map(courseName -> {spec:type})
+  const setMap = new Map(); // setName -> Map(courseName -> {spec:strategyType})
+  const mandatory = {};     // spec -> [courseName, ...]
   rows.forEach(r=>{
     const setName = (r.set || "").trim();
-    const course = (r.course || "").trim().replace(/\*+\s*$/,'').trim(); // strip trailing "required" marker
+    const course = (r.course || "").trim().replace(/\*+\s*$/,'').trim(); // strip optional trailing "*" marker
     if(!setName || !course) return; // skip malformed/blank rows
     const spec = (r.specialization || "").trim();
-    const typ = (r.type || "N").trim() || "N";
+    const typ = ((r.strategy_type || "").trim() || "N").toUpperCase();
     if(!setMap.has(setName)){ setMap.set(setName, new Map()); setOrder.push(setName); }
     const courseMap = setMap.get(setName);
     if(!courseMap.has(course)) courseMap.set(course, {});
-    if(spec) courseMap.get(course)[spec] = typ;
+    if(spec){
+      courseMap.get(course)[spec] = typ;
+      if(isYes(r.course_required)){
+        mandatory[spec] = mandatory[spec] || [];
+        if(!mandatory[spec].includes(course)) mandatory[spec].push(course);
+      }
+    }
   });
-  const result = [];
+  const sets = [];
   setOrder.forEach((setName, si)=>{
-    const courseMap = setMap.get(setName);
     const opts = [];
     let oi = 0;
-    courseMap.forEach((specs, courseName)=>{
-      opts.push([`R${si}_${oi}`, courseName, specs]);
-      oi++;
-    });
-    result.push([setName, opts]);
+    setMap.get(setName).forEach((specs, courseName)=>{ opts.push([`R${si}_${oi}`, courseName, specs]); oi++; });
+    sets.push([setName, opts]);
   });
-  return result;
+  return { sets, mandatory };
+}
+
+// catches CSV content the solver can't handle correctly, instead of silently giving wrong answers
+function validateData(sets, mandatory){
+  const problems = [];
+  if(sets.length === 0) problems.push("no usable rows were found");
+  sets.forEach(([, opts])=>opts.forEach(([, cname, specs])=>{
+    Object.entries(specs).forEach(([spec, typ])=>{
+      const rule = SPECIAL_TYPE_RULES[spec];
+      if(rule && !(typ in rule)){
+        problems.push(`"${cname}" has strategy_type "${typ}" for ${spec}, but ${spec} only accepts ${Object.keys(rule).join(" or ")}`);
+      }
+    });
+  }));
+  Object.entries(mandatory).forEach(([spec, courses])=>{
+    if(courses.length > REQUIRED_COURSES){
+      problems.push(`${spec} has ${courses.length} required courses, more than its ${REQUIRED_COURSES} slots`);
+    }
+    if(SPECIAL_TYPE_RULES[spec]){
+      problems.push(`${spec} has a required course (${courses.join(", ")}), which can't be combined with its ${Object.keys(SPECIAL_TYPE_RULES[spec]).join("/")} rule`);
+    }
+  });
+  return problems;
 }
 
 function setStatus(state, text){
@@ -805,28 +772,45 @@ function setStatus(state, text){
   document.getElementById("statusText").textContent = text;
 }
 
-function applyNewData(setsData){
-  if(!setsData || setsData.length === 0) return false;
-  SETS = setsData;
-  SPECS = deriveSpecs(setsData);
-  buildScheduleGrid();
-  document.getElementById("results").innerHTML = `<div class="placeholder">Optionally pin courses above, then click "Find Feasible Specializations" to see every achievable pair and triple.</div>`;
-  return true;
+function setButtonsEnabled(on){
+  ["generateBtn","clearBtn"].forEach(id=>{ document.getElementById(id).disabled = !on; });
+}
+
+function showLoadError(msg){
+  setStatus("error", msg);
+  const box = document.createElement("div");
+  box.className = "placeholder load-error";
+  box.textContent = msg;
+  document.getElementById("results").replaceChildren(box);
+  if(!DATA_READY){
+    document.getElementById(CATALOG_CONTAINER_ID).replaceChildren(box.cloneNode(true));
+    setButtonsEnabled(false);
+  }
 }
 
 function loadFromCsvText(text, sourceLabel){
+  let parsed;
   try{
-    const parsed = Papa.parse(text, { header:true, skipEmptyLines:true });
-    const setsData = buildSetsFromRows(parsed.data);
-    if(applyNewData(setsData)){
-      const courseCount = setsData.reduce((sum,[,opts])=>sum+opts.length, 0);
-      setStatus("ok", `Loaded ${courseCount} courses across ${setsData.length} elective sets — ${sourceLabel}.`);
-    } else {
-      setStatus("error", `${sourceLabel} had no usable rows — keeping the current data.`);
-    }
+    parsed = Papa.parse(text, { header:true, skipEmptyLines:true, transformHeader:h=>h.trim().toLowerCase() });
   } catch(err){
-    setStatus("error", `Couldn't parse ${sourceLabel} (${err.message}) — keeping the current data.`);
+    showLoadError(`Couldn't read the course catalog (${err.message}).`);
+    return;
   }
+  const fields = parsed.meta.fields || [];
+  const missing = REQUIRED_COLUMNS.filter(c=>!fields.includes(c));
+  if(missing.length){
+    showLoadError(`The course catalog is missing required column(s): ${missing.join(", ")}. Expected columns: ${REQUIRED_COLUMNS.join(", ")}.`);
+    return;
+  }
+  const { sets, mandatory } = buildDataFromRows(parsed.data);
+  const problems = validateData(sets, mandatory);
+  if(problems.length){
+    showLoadError("The course catalog has problems: " + problems.join("; ") + ".");
+    return;
+  }
+  applyNewData(sets, mandatory);
+  const courseCount = sets.reduce((sum,[,opts])=>sum+opts.length, 0);
+  setStatus("ok", `Loaded ${courseCount} courses across ${sets.length} elective sets — ${sourceLabel}.`);
 }
 
 function tryAutoFetch(){
@@ -837,9 +821,7 @@ function tryAutoFetch(){
       return res.text();
     })
     .then(text=> loadFromCsvText(text, "auto-loaded from published catalog"))
-    .catch(err=>{
-      setStatus("error", `Couldn't auto-load the published catalog (${err.message}). Showing built-in baseline data — upload a CSV below to override.`);
-    });
+    .catch(err=> showLoadError(`Couldn't load the course catalog from ${CSV_URL} (${err.message}).`));
 }
 
 document.getElementById("csvUpload").addEventListener("change", (e)=>{
@@ -847,18 +829,29 @@ document.getElementById("csvUpload").addEventListener("change", (e)=>{
   if(!file) return;
   const reader = new FileReader();
   reader.onload = ()=> loadFromCsvText(reader.result, `uploaded file "${file.name}"`);
-  reader.onerror = ()=> setStatus("error", "Couldn't read the uploaded file — keeping the current data.");
+  reader.onerror = ()=> showLoadError("Couldn't read the uploaded file.");
   reader.readAsText(file);
 });
 document.getElementById("reloadBtn").addEventListener("click", tryAutoFetch);
+const CATALOG_CONTAINER_ID = "scheduleGrid";
+
+function applyNewData(sets, mandatory){
+  SETS = sets;
+  SPECS = deriveSpecs(sets);
+  MANDATORY_COURSES = mandatory;
+  DATA_READY = true;
+  renderProgramText();
+  buildScheduleGrid();
+  document.getElementById("results").innerHTML = `<div class="placeholder">Optionally pin courses above, then click "Find Feasible Specializations" to see every achievable pair and triple.</div>`;
+  setButtonsEnabled(true);
+}
 
 /* ---------- wire up ---------- */
-buildScheduleGrid(); // render immediately with built-in baseline, no waiting on network
-setStatus("loading", "Using built-in baseline data — checking for updates…");
-tryAutoFetch();
+tryAutoFetch(); // nothing renders until the catalog loads
 
 document.getElementById("generateBtn").addEventListener("click", renderResults);
 document.getElementById("clearBtn").addEventListener("click", ()=>{
+  if(!DATA_READY) return;
   document.querySelectorAll('#scheduleGrid input[type=radio]').forEach(r=> r.checked=false);
   document.querySelectorAll('#scheduleGrid .set-card.pinned').forEach(c=> c.classList.remove('pinned'));
   document.getElementById("results").innerHTML = `<div class="placeholder">Optionally pin courses above, then click "Find Feasible Specializations" to see every achievable pair and triple.</div>`;
