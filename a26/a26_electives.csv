@@ -1,0 +1,126 @@
+set,course,specialization,strategy_type,course_required
+Fall Elective Set 1,Private Equity,Banking,N,N
+Fall Elective Set 1,Private Equity,Corporate Finance,N,N
+Fall Elective Set 1,Private Equity,Finance,N,N
+Fall Elective Set 1,Private Equity,Financial Instruments and Markets,N,N
+Fall Elective Set 1,Private Equity,Strategy,S2,N
+Fall Elective Set 1,Crisis Management,Leadership and Change Management,N,N
+Fall Elective Set 1,Crisis Management,Management,N,N
+Fall Elective Set 1,Social Entrepreneurship,Entrepreneurship and Innovation,N,N
+Fall Elective Set 1,Social Entrepreneurship,Management,N,N
+Fall Elective Set 1,Social Entrepreneurship,Sustainable Business and Innovation,N,N
+Fall Elective Set 2,Real Estate Investment Strategy,Finance,N,N
+Fall Elective Set 2,Real Estate Investment Strategy,Financial Instruments and Markets,N,N
+Fall Elective Set 2,Decision Models and Analytics,FinTech,N,N
+Fall Elective Set 2,Decision Models and Analytics,Management,N,N
+Fall Elective Set 2,Decision Models and Analytics,Management of Technology and Operations,N,N
+Fall Elective Set 2,Corporate Finance (Fall),Corporate Finance,N,N
+Fall Elective Set 2,Corporate Finance (Fall),Finance,N,N
+Fall Elective Set 2,Managing Change,Healthcare,N,N
+Fall Elective Set 2,Managing Change,Leadership and Change Management,N,N
+Fall Elective Set 2,Managing Change,Management,N,N
+Fall Elective Set 2,Managing Change,Strategy,S2,N
+Fall Elective Set 3,Operations Strategy,Management of Technology and Operations,N,N
+Fall Elective Set 3,Climate Finance,Banking,N,N
+Fall Elective Set 3,Climate Finance,Corporate Finance,N,N
+Fall Elective Set 3,Climate Finance,Finance,N,N
+Fall Elective Set 3,Climate Finance,Financial Instruments and Markets,N,N
+Fall Elective Set 3,Climate Finance,Global Business,N,N
+Fall Elective Set 3,Climate Finance,Sustainable Business and Innovation,N,N
+Fall Elective Set 3,Emerging Technology and Business Innovation,Brand Management,N,N
+Fall Elective Set 3,Emerging Technology and Business Innovation,"Entertainment, Media, and Technology",N,N
+Fall Elective Set 3,Emerging Technology and Business Innovation,Entrepreneurship and Innovation,N,N
+Fall Elective Set 3,Emerging Technology and Business Innovation,Management of Technology and Operations,N,N
+Fall Elective Set 3,Emerging Technology and Business Innovation,Strategy,S2,N
+Fall Elective Set 3,"Technology, Innovation, and Disruption in Media (Formerly ""New Media in Marketing"")",Brand Management,N,N
+Fall Elective Set 3,"Technology, Innovation, and Disruption in Media (Formerly ""New Media in Marketing"")","Entertainment, Media, and Technology",N,N
+Fall Elective Set 3,"Technology, Innovation, and Disruption in Media (Formerly ""New Media in Marketing"")",Marketing,N,N
+Fall Elective Set 3,"Technology, Innovation, and Disruption in Media (Formerly ""New Media in Marketing"")",Management of Technology and Operations,N,N
+Fall Elective Set 4,"Turnaround, Restructuring, & Distressed Investing",Banking,N,N
+Fall Elective Set 4,"Turnaround, Restructuring, & Distressed Investing",Corporate Finance,N,N
+Fall Elective Set 4,"Turnaround, Restructuring, & Distressed Investing",Finance,N,N
+Fall Elective Set 4,"Turnaround, Restructuring, & Distressed Investing",Financial Instruments and Markets,N,N
+Fall Elective Set 4,Behavioral Finance and Market Psychology,Banking,N,N
+Fall Elective Set 4,Behavioral Finance and Market Psychology,Corporate Finance,N,N
+Fall Elective Set 4,Behavioral Finance and Market Psychology,Finance,N,N
+Fall Elective Set 4,Behavioral Finance and Market Psychology,Financial Instruments and Markets,N,N
+Fall Elective Set 4,Behavioral Finance and Market Psychology,FinTech,N,N
+Fall Elective Set 4,Corporate Governance,Leadership and Change Management,N,N
+Fall Elective Set 4,Corporate Governance,Management,N,N
+Fall Elective Set 4,Corporate Governance,Sustainable Business and Innovation,N,N
+Fall Elective Set 4,Corporate Governance,Strategy,S1,N
+Fall Elective Set 4,Brand Strategy*,Brand Management,N,Y
+Fall Elective Set 4,Brand Strategy*,Marketing,N,N
+Spring Elective Set 1,Global Immersion Experience II (Spring),Global Business,N,N
+Spring Elective Set 1,"Collaboration, Conflict and Negotiation (Spring)",Leadership and Change Management,N,N
+Spring Elective Set 1,"Collaboration, Conflict and Negotiation (Spring)",Management,N,N
+Spring Elective Set 1,Conquering High Stakes Communication (Spring),Leadership and Change Management,N,N
+Spring Elective Set 2,Consumer Behavior,Brand Management,N,N
+Spring Elective Set 2,Consumer Behavior,Marketing,N,N
+Spring Elective Set 2,The Business of Health & Medical Care,Healthcare,N,N
+Spring Elective Set 2,The Business of Health & Medical Care,Strategy,S2,N
+Spring Elective Set 2,Human Rights and Business,Global Business,N,N
+Spring Elective Set 2,Human Rights and Business,Sustainable Business and Innovation,N,N
+Spring Elective Set 2,The Financial Services Industry,Banking,N,N
+Spring Elective Set 2,The Financial Services Industry,Corporate Finance,N,N
+Spring Elective Set 2,The Financial Services Industry,Finance,N,N
+Spring Elective Set 2,The Financial Services Industry,Financial Instruments and Markets,N,N
+Spring Elective Set 3,Mergers & Acquisitions,Corporate Finance,N,N
+Spring Elective Set 3,Mergers & Acquisitions,Finance,N,N
+Spring Elective Set 3,Mergers & Acquisitions,Leadership and Change Management,N,N
+Spring Elective Set 3,Mergers & Acquisitions,Strategy,S1,N
+Spring Elective Set 3,Digital Strategy,"Entertainment, Media, and Technology",N,N
+Spring Elective Set 3,Digital Strategy,FinTech,N,N
+Spring Elective Set 3,Digital Strategy,Management of Technology and Operations,N,N
+Spring Elective Set 3,Digital Strategy,Strategy,S2,N
+Spring Elective Set 3,Managing a High Tech Company: The CEO Perspective,"Entertainment, Media, and Technology",N,N
+Spring Elective Set 3,Managing a High Tech Company: The CEO Perspective,Management,N,N
+Spring Elective Set 3,Managing a High Tech Company: The CEO Perspective,Management of Technology and Operations,N,N
+Spring Elective Set 3,Managing a High Tech Company: The CEO Perspective,Strategy,S2,N
+Spring Elective Set 3,Analytics & Machine Learning for Managers,Healthcare,N,N
+Spring Elective Set 3,Analytics & Machine Learning for Managers,Management of Technology and Operations,N,N
+Spring Elective Set 4,Foundations of Fintech,Finance,N,N
+Spring Elective Set 4,Foundations of Fintech,FinTech,N,N
+Spring Elective Set 4,Sustainability for Competitive Advantage*,Leadership and Change Management,N,N
+Spring Elective Set 4,Sustainability for Competitive Advantage*,Sustainable Business and Innovation,N,Y
+Spring Elective Set 4,Sustainability for Competitive Advantage*,Strategy,S1,N
+Spring Elective Set 4,Pricing,Brand Management,N,N
+Spring Elective Set 4,Pricing,Marketing,N,N
+Spring Elective Set 4,Pricing,Management of Technology and Operations,N,N
+Spring Elective Set 4,Foundations of Entrepreneurship*,Entrepreneurship and Innovation,N,Y
+Spring Elective Set 4,Foundations of Entrepreneurship*,Management,N,N
+Spring Elective Set 4,Foundations of Entrepreneurship*,Strategy,S1,N
+Spring Elective Set 5,Corporate Finance (Spring),Corporate Finance,N,N
+Spring Elective Set 5,Corporate Finance (Spring),Finance,N,N
+Spring Elective Set 5,Consulting Practice: Process and Problem Solving,Management,N,N
+Spring Elective Set 5,Consulting Practice: Process and Problem Solving,Strategy,S1,N
+Spring Elective Set 5,Global Strategy,Global Business,N,N
+Spring Elective Set 5,Global Strategy,Management,N,N
+Spring Elective Set 5,Global Strategy,Strategy,S1,N
+Summer Elective Set 1,Global Immersion Experience II (Summer),Global Business,N,N
+Summer Elective Set 1,"Collaboration, Conflict and Negotiation (Summer)",Leadership and Change Management,N,N
+Summer Elective Set 1,"Collaboration, Conflict and Negotiation (Summer)",Management,N,N
+Summer Elective Set 1,Conquering High Stakes Communication (Summer),Leadership and Change Management,N,N
+Summer Elective Set 2,Innovation and Design,Brand Management,N,N
+Summer Elective Set 2,Innovation and Design,Entrepreneurship and Innovation,N,N
+Summer Elective Set 2,Innovation and Design,Marketing,N,N
+Summer Elective Set 2,Innovation and Design,Strategy,S2,N
+Summer Elective Set 2,"Digital Marketing Strategy in Practice (Formerly ""Social Media and Mobile Technology"")",Brand Management,N,N
+Summer Elective Set 2,"Digital Marketing Strategy in Practice (Formerly ""Social Media and Mobile Technology"")","Entertainment, Media, and Technology",N,N
+Summer Elective Set 2,"Digital Marketing Strategy in Practice (Formerly ""Social Media and Mobile Technology"")",Healthcare,N,N
+Summer Elective Set 2,"Digital Marketing Strategy in Practice (Formerly ""Social Media and Mobile Technology"")",Marketing,N,N
+Summer Elective Set 2,Leading in the Age of AI,Leadership and Change Management,N,N
+Summer Elective Set 2,Leading in the Age of AI,Management,N,N
+Summer Elective Set 2,Leading in the Age of AI,Management of Technology and Operations,N,N
+Summer Elective Set 2,Business Drivers,Strategy,S1,N
+Summer Elective Set 3,Valuation,Banking,N,N
+Summer Elective Set 3,Valuation,Corporate Finance,N,N
+Summer Elective Set 3,Valuation,Finance,N,N
+Summer Elective Set 3,Valuation,Financial Instruments and Markets,N,N
+Summer Elective Set 3,Entertainment and Media Industries*,"Entertainment, Media, and Technology",N,Y
+Summer Elective Set 3,Entertainment and Media Industries*,Marketing,N,N
+Summer Elective Set 3,Entertainment and Media Industries*,Strategy,S2,N
+Summer Elective Set 3,Advanced Corporate Strategy,Management,N,N
+Summer Elective Set 3,Advanced Corporate Strategy,Strategy,S1,N
+Summer Elective Set 3,Power and Professional Influence,Leadership and Change Management,N,N
+Summer Elective Set 3,Power and Professional Influence,Management,N,N
