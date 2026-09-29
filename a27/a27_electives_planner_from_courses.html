@@ -708,7 +708,7 @@ function renderProgramText(){
    course_required) into SETS + MANDATORY_COURSES. The page shows nothing
    until this succeeds, and shows a clear error if it fails.
    ========================================================================= */
-const CSV_URL = "a27_electives.csv"; //"https://dp129nyu.github.io/public/a27/a27_electives.csv";
+const CSV_URL = "a27_electives.csv";
 const REQUIRED_COLUMNS = ["set","course","specialization","strategy_type","course_required"];
 
 function isYes(v){ return /^(y|yes|true|1)$/i.test((v || "").trim()); }
